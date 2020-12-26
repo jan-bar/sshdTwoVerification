@@ -54,12 +54,17 @@ python SecucrtPassword.py dec -v2 4b3e1481ecaef028e71b783fd5a01009548c85f0766f01
 3.  echo 'admin' > /etc/janbar  
 4.  vim /etc/passwd , 将[root:x:0:0:root:/root:**/bin/bash**]改为[root:x:0:0:root:/root:**/bin/janbar**]  
 5.  重新登录后台，此时出现一张二维码，用微信扫描一下二维码并计算出结果，例如结果为15，则要输入admin15。  
-6.  qrencode\qrencode是Linux下可执行程序,qrencode\libqrencode.so.4是编译好的库
+6.  qrencode\qrencode是Linux下可执行程序,qrencode\libqrencode.so.4是编译好的库  
+
+#### 使用邮件验证码,login_mail_code.sh
+1. sendmail脚本使用方法`sendmail xxx@163.com password yyy@qq.com subject msg`，该脚本使用expect工具，不用再通过各种编程语言来发邮件了。
+2. login_mail_code.sh脚本，会缓存使用的邮件验证码，该验证码有效期为1小时。一小时后登录会重新发送一个邮件验证码。
 
 #### 结语
-1.  我的两种方案都有对输入做超时检测，如果超过时间没有输入后台也会自动退出，同样输入错误3次也会自动退出。  
+1.  我的三种方案都有对输入做超时检测，如果超过时间没有输入后台也会自动退出，同样输入错误3次也会自动退出。  
 2.  有些小伙伴后台不是root登录，可以找/etc/passwd里面对应用户名那行做同样的修改即可。  
 3.  之所以我要做2中方案，是因为janbar.sh方便修改，而janbar.c逼格满满。  
 4.  并且已经加入控制台显示一张二维码，带有简单的加和乘计算，输入二次验证时需要计算，逼格和安全全满。  
 5.  需要注意的一点，这样的后台是无法使用scp、sftp等直接连接，除非这些工具也能完成二次验证，但sz和rz不影响。  
 6.  对于某些安全性高的服务器，不能信任ssh工具，因为这些工具保存的密码可能被解密，如果有必要甚至可以每隔一段时间踢掉所有ssh登录的用户，用这个命令即可（pkill -kill -t pts/0）
+7.  最满意也一直在使用的是最后一种邮件验证码，当有人爆破后台时我会收到邮件，如果确认不是本人操作，那就要及时处理了。并且邮件验证码存在有效期，也不必频繁的收到验证码了。

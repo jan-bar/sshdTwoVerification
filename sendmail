@@ -1,0 +1,41 @@
+#!/usr/bin/expect -f
+set user [lindex $argv 0]
+set pass [lindex $argv 1]
+set to [lindex $argv 2]
+set subject [lindex $argv 3]
+set code [lindex $argv 4]
+set username [exec echo -n $user | base64]
+set password [exec echo -n $pass | base64]
+
+set timeout 5
+set val 1
+log_user 0
+spawn telnet smtp.163.com 25
+expect "220 163.com*"
+send "EHLO localhost\n"
+expect "250 8BITMIME"
+send "AUTH LOGIN\n"
+expect "334 dXNlcm5hbWU6"
+send "$username\n"
+expect "334 UGFzc3dvcmQ6"
+send "$password\n"
+expect "235 Authentication successful"
+send "MAIL FROM:<$user> BODY=8BITMIME\n"
+expect "250 Mail OK"
+send "RCPT TO: <$to>\n"
+expect "250 Mail OK"
+send "DATA\n"
+expect "354 End data with <CR><LF>.<CR><LF>"
+send "Mime-Version: 1.0\n"
+send "From: $user\n"
+send "To: $to\n"
+send "Subject: $subject\n"
+send "Content-Type: text/plain; charset=UTF-8\n"
+send "Content-Transfer-Encoding: quoted-printable\n\n"
+send $code
+send "\n.\n"
+expect {
+"250 Mail OK*" {send "QUIT\n";set val 0}
+}
+expect EOF
+exit $val
